@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="ko" class="h-full">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>디시 보이스리플 추출기 — MP3 변환</title>
+
+  <!-- SEO -->
+  <meta name="description" content="디시 인사이드 보이스리플 링크/iframe에서 원본 오디오를 추출하고 MP3로 변환하여 다운로드합니다." />
+  <meta name="robots" content="index, follow" />
+  <!-- 배포 후 실제 도메인으로 교체 -->
+  <link rel="canonical" href="https://YOUR-DOMAIN.example/" />
+
+  <!-- OG/Twitter -->
+  <meta property="og:title" content="디시 보이스리플 추출기 — MP3 변환" />
+  <meta property="og:description" content="보이스리플 오디오를 추출하고 MP3로 변환해서 저장하세요." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://YOUR-DOMAIN.example/" />
+  <meta property="og:image" content="https://YOUR-DOMAIN.example/og.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+
+  <!-- Search Console (원하면 여기에 메타 추가) -->
+  <!-- <meta name="google-site-verification" content="VERIFICATION_TOKEN"> -->
+
+  <!-- 초기 테마 감지 -->
+  <script>
+    (function () {
+      try {
+        const saved = localStorage.getItem('theme');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const wantDark = saved ? saved === 'dark' : prefersDark;
+        document.documentElement.classList.toggle('dark', wantDark);
+      } catch {}
+    })();
+  </script>
+
+  <!-- Tailwind (darkMode=class) -->
+  <script> tailwind = { config: { darkMode: 'class' } }; </script>
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    .spin { animation: spin 1s linear infinite }
+    @keyframes spin { to { transform: rotate(360deg) } }
+    .fade-in { animation: fadein .35s ease-out }
+    @keyframes fadein { from{opacity:0; transform: translateY(4px)} to{opacity:1; transform:none} }
+    .dropzone { border: 2px dashed rgb(148 163 184); }
+    .dropzone.drag { border-color: rgb(99 102 241); background: rgba(99,102,241,.08); }
+  </style>
+
+  <!-- JSON-LD (구글이 좋아함) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "디시 보이스리플 추출기",
+    "applicationCategory": "MultimediaApplication",
+    "operatingSystem": "Any",
+    "url": "https://YOUR-DOMAIN.example/",
+    "description": "보이스리플 오디오를 추출하고 MP3로 변환하여 다운로드.",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "KRW" }
+  }
+  </script>
+</head>
+<body class="h-full bg-slate-50 text-slate-800 dark:bg-slate-900 dark:text-slate-100">
+  <div class="min-h-full">
+    <!-- 헤더 -->
+    <header class="sticky top-0 z-10 backdrop-blur bg-white/70 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-800">
+      <div class="max-w-3xl mx-auto px-5 py-3 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M3 5a2 2 0 0 1 2-2h2l1-1h6l1 1h2a 2 2 0 0 1 2 2v3H3V5Zm0 5h18v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-9Zm5 2v7h2v-7H8Zm6 0v7h2v-7h-2Z"/>
+          </svg>
+          <h1 class="text-lg font-bold tracking-tight">디시 보이스리플 추출기</h1>
+        </div>
+      </div>
+    </header>
+
+    <!-- 메인 -->
+    <main class="max-w-3xl mx-auto px-5 py-8">
+      <section class="mb-6">
+        <p class="text-sm text-slate-500 dark:text-slate-400">
+          보이스리플 <b>플레이어 링크</b>(<code class="bg-slate-100 dark:bg-slate-800 px-1 rounded">.../voice/player?vr=...</code>) 또는
+          <b>iframe HTML</b>을 붙여넣어 주세요. 엔터(⌅)로 제출 가능!
+        </p>
+      </section>
+
+      <!-- 입력 카드 -->
+      <section class="fade-in rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 shadow-sm">
+        <div class="p-5">
+          <label class="block text-sm font-medium mb-2">링크 / iframe</label>
+
+          <div id="dz" class="dropzone rounded-xl p-3 transition-colors">
+            <textarea id="u" rows="4" placeholder="https://m.dcinside.com/voice/player?vr=...  또는  <iframe ... src='https://m.dcinside.com/voice/player?vr=...'></iframe>"
+              class="w-full bg-transparent outline-none resize-y placeholder:text-slate-400"></textarea>
+          </div>
+
+          <div class="mt-3 flex flex-wrap gap-2">
+            <button id="submitBtn" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold">
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M2 21L23 12 2 3l3 7 9 2-9 2-3 7z"/></svg>
+              추출하기
+            </button>
+            <button id="demoBtn" class="px-4 py-2 rounded-xl border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 font-semibold">
+              데모 채우기
+            </button>
+            <button id="clearBtn" class="px-4 py-2 rounded-xl border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800">
+              지우기
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 상태 -->
+      <div id="state" class="mt-5 text-sm text-slate-500 dark:text-slate-400"></div>
+
+      <!-- 결과 카드 -->
+      <section id="resultCard" class="hidden mt-5 fade-in rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 shadow-sm">
+        <div class="p-5">
+          <div class="flex items-center justify-between gap-3">
+            <h2 class="font-semibold">결과</h2>
+            <div class="flex items-center gap-2">
+              <button id="copyBtn" class="px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-sm">URL 복사</button>
+              <a id="dlBtn" href="#" target="_blank" rel="noopener"
+                 class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-sm">MP3 다운로드</a>
+            </div>
+          </div>
+
+          <p class="mt-2 text-xs text-slate-500 dark:text-slate-400">아래 링크는 원본 음원 리소스입니다.</p>
+
+          <div class="mt-3 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-3 overflow-x-auto">
+            <code id="audioUrl" class="text-sm break-all"></code>
+          </div>
+
+          <audio id="player" controls class="w-full mt-4 rounded-xl"></audio>
+        </div>
+      </section>
+
+      <!-- 안내(주의사항 그대로) -->
+      <section class="mt-8 text-sm text-slate-500 dark:text-slate-400">
+        <details class="group">
+          <summary class="cursor-pointer font-semibold hover:underline">주의 및 이용 가이드</summary>
+          <ul class="list-disc pl-5 mt-2 space-y-1">
+            <li>공개 접근 가능한 본인 이용 범위에서만 사용하세요. (저작권/초상권/약관 준수)</li>
+            <li>게시물이 삭제/비공개면 추출이 실패할 수 있어요.</li>
+            <li>페이지 구조가 바뀌면 추출 로직 업데이트가 필요할 수 있어요.</li>
+          </ul>
+        </details>
+      </section>
+
+      <noscript>
+        이 웹앱은 자바스크립트가 필요합니다. 보이스리플 링크를 제출해 원본 오디오를 추출하고 MP3로 변환합니다.
+      </noscript>
+    </main>
+
+    <!-- 토스트 -->
+    <div id="toast" class="fixed bottom-4 left-1/2 -translate-x-1/2 hidden px-4 py-2 rounded-xl bg-slate-900 text-white text-sm shadow-lg"></div>
+  </div>
+
+  <script>
+    const $ = (s)=>document.querySelector(s);
+    const u = $('#u'), state=$('#state'), resultCard=$('#resultCard');
+    const audioUrlEl=$('#audioUrl'), player=$('#player'), dlBtn=$('#dlBtn');
+    const copyBtn=$('#copyBtn'), demoBtn=$('#demoBtn'), clearBtn=$('#clearBtn'), submitBtn=$('#submitBtn'), dz=$('#dz');
+
+    function showToast(msg){
+      const t=$('#toast'); t.textContent=msg; t.classList.remove('hidden'); setTimeout(()=>t.classList.add('hidden'),1400);
+    }
+
+    function setBusy(b){
+      submitBtn.disabled=b;
+      submitBtn.innerHTML=b?`<svg class="w-4 h-4 spin" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="9" stroke-width="3" opacity=".25"/><path d="M21 12a9 9 0 0 1-9 9" stroke-width="3"/></svg> 처리 중...`
+                           :`<svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M2 21L23 12 2 3l3 7 9 2-9 2-3 7z"/></svg> 추출하기`;
+      state.textContent=b?'⏳ 추출 중...':'';
+    }
+
+    function showResult(url, mp3Url){
+      audioUrlEl.textContent=url;
+      player.src=url;                 // 원본 미리듣기
+      dlBtn.href=mp3Url;              // 서버 변환 MP3 다운로드
+      dlBtn.setAttribute('download','voice.mp3');
+      resultCard.classList.remove('hidden');
+      state.textContent='✅ 추출 성공! 아래에서 미리듣기/다운로드 해.';
+    }
+
+    function hideResult(){
+      resultCard.classList.add('hidden'); audioUrlEl.textContent='';
+      player.removeAttribute('src'); player.load();
+    }
+
+    async function extract(){
+      const input=u.value.trim(); if(!input){showToast('링크 또는 iframe을 입력해줘!'); return;}
+      setBusy(true); hideResult();
+      try{
+        const res=await fetch(`/extract?link=${encodeURIComponent(input)}`,{cache:'no-store'});
+        const data=await res.json();
+        if(!res.ok||!data?.ok) throw new Error(data?.error||`요청 실패 (${res.status})`);
+        showResult(data.audioUrl, data.mp3Url);
+      }catch(e){
+        state.textContent='❌ '+(e.message||e);
+      }finally{ setBusy(false); }
+    }
+
+    submitBtn.addEventListener('click',extract);
+    demoBtn.addEventListener('click',()=>{
+      u.value="<iframe width='280px' height='54px' src='https://m.dcinside.com/voice/player?vr=39a4c023b8c57eaf6ae2d2bc11d8303cec77c04ea0e9547cfbf9448bcefa3a0cc0' frameborder='0' scrolling='no'></iframe>";
+      showToast('데모 입력 완료');
+    });
+    clearBtn.addEventListener('click',()=>{u.value='';hideResult();state.textContent='';});
+    copyBtn.addEventListener('click',async()=>{const v=audioUrlEl.textContent.trim();if(!v)return;try{await navigator.clipboard.writeText(v);showToast('URL 복사 완료!');}catch{showToast('클립보드 복사 실패 😢');}});
+    u.addEventListener('keydown',(e)=>{if((e.metaKey||e.ctrlKey)&&e.key==='Enter')extract();});
+    ['dragenter','dragover'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.add('drag');}));
+    ['dragleave','drop'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.remove('drag');}));
+    dz.addEventListener('drop',(e)=>{const text=e.dataTransfer.getData('text');if(text){u.value=text.trim();showToast('붙여넣기 완료');}});
+  </script>
+</body>
+</html>
