@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://dc-sound-source-extraction.onrender.com/
+Sitemap: https://dc-sound-source-extraction.pages.dev/sitemap.xml
